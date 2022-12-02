@@ -11,71 +11,49 @@ end
 def part1(data)
   rounds = data.map(&:split)
 
-  score = 0
-  rounds.each do |o, y|
-    if o == 'A' # rock
-      if y == 'X' # rock
-        score += 1 + 3
-      elsif y == 'Y' # paper
-        score += 2 + 6
-      else # scissors
-        score += 3 + 0
-      end
-    elsif o == 'B' # paper
-      if y == 'X' # rock
-        score += 1 + 0
-      elsif y == 'Y' # paper
-        score += 2 + 3
-      else # scissors
-        score += 3 + 6
-      end
-    else # C - scissors
-      if y == 'X' # rock
-        score += 1 + 6
-      elsif y == 'Y' # paper
-        score += 2 + 0
-      else # scissors
-        score += 3 + 3
-      end
-    end
-  end
+  strategy = {
+    'A' => {
+      'X' => 1 + 3,
+      'Y' => 2 + 6,
+      'Z' => 3 + 6
+    },
+    'B' => {
+      'X' => 1 + 0,
+      'Y' => 2 + 3,
+      'Z' => 3 + 6
+    },
+    'C' => {
+      'X' => 1 + 6,
+      'Y' => 2 + 0,
+      'Z' => 3 + 3
+    }
+  }
 
-  score
+  rounds.sum { |o, y| strategy[o][y] }
 end
 
 def part2(data)
   rounds = data.map(&:split)
 
-  score = 0
-  rounds.each do |o, y|
-    if o == 'A' # rock
-      if y == 'X' # lose
-        score += 3 + 0
-      elsif y == 'Y' # draw
-        score += 1 + 3
-      else # win
-        score += 2 + 6
-      end
-    elsif o == 'B' # paper
-      if y == 'X' # lose
-        score += 1 + 0
-      elsif y == 'Y' # draw
-        score += 2 + 3
-      else # win
-        score += 3 + 6
-      end
-    else # C - scissors
-      if y == 'X' # lose
-        score += 2 + 0
-      elsif y == 'Y'
-        score += 3 + 3
-      else #
-        score += 1 + 6
-      end
-    end
-  end
+  strategy = {
+    'A' => {
+      'X' => 3 + 0,
+      'Y' => 1 + 3,
+      'Z' => 2 + 6
+    },
+    'B' => {
+      'X' => 1 + 0,
+      'Y' => 2 + 3,
+      'Z' => 3 + 6
+    },
+    'C' => {
+      'X' => 2 + 0,
+      'Y' => 3 + 3,
+      'Z' => 1 + 6
+    }
+  }
 
-  score
+  rounds.sum { |o, y| strategy[o][y] }
 end
 
 puts part1(test_data)
