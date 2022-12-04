@@ -10,6 +10,9 @@ Metrics:
 Layout/IndentationWidth:
   Enabled: false
 
+Naming:
+  Enabled: false
+
 # Metrics/AbcSize:
 #   Enabled: false
 
