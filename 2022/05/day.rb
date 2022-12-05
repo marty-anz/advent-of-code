@@ -76,25 +76,28 @@ def part2(s, moves)
   s.map { |e| e[0] }.join
 end
 
-if !ta.nil? && tb.nil? # part 1
-  t = part1(test_state, test_data)
+t = part1(test_state, test_data)
+if t == ta
+  a = part1(state, data)
+  puts a
 
-  if t == ta
-    a = part1(state, data)
-    puts a
+  unless File.exist?('./part1_answer')
     puts `~/bin/aocs 1 #{a}`
-  else
-    puts "part 1 test answer is not correct expected: #{ta} actual: #{t}"
+    `echo #{a} > part1_answer`
   end
+else
+  puts "part 1 test answer is not correct expected: #{ta} actual: #{t}"
 end
 
-unless tb.nil? # part 2
-  t = part2(test_state, test_data)
-  if t == tb
-    a = part2(state, data)
-    puts a
+t = part2(test_state, test_data)
+if t == tb
+  a = part2(state, data)
+  puts a
+
+  if File.exist?('./part1_answer') && !File.exist?('./part2_answer')
     puts `~/bin/aocs 2 #{a}`
-  else
-    puts "part 2 test answer is not correct expected: #{tb} actual: #{t}"
+    `echo #{a} > part2_answer`
   end
+else
+  puts "part 2 test answer is not correct expected: #{tb} actual: #{t}"
 end
