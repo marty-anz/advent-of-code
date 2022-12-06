@@ -4,6 +4,9 @@ Style/FrozenStringLiteralComment:
 Style/IfUnlessModifier:
   Enabled: false
 
+Style:
+  Enabled: false
+
 Metrics:
   Enabled: false
 
