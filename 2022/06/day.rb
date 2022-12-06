@@ -5,25 +5,21 @@ require '../../lib/hash'
 require '../../lib/matrix'
 require '../../lib/sequence'
 
-aoc = Aoc.new(__dir__) { |data| data.first }
+aoc = Aoc.new(__dir__) { |data| data.first.chars }
 
 ta = 7
 
 def part1(data)
-  a = []
-  data.chars.each_with_index do |e, i|
-    a << e
-    return i + 1 if a.last(4).uniq.size == 4
+  data.count.times do |i|
+    return i + 4 if data[i..(i + 3)].uniq.size == 4
   end
 end
 
 tb = 19
 
 def part2(data)
-  a = []
-  data.chars.each_with_index do |e, i|
-    a << e
-    return i + 1 if a.last(14).uniq.size == 14
+  data.count.times do |i|
+    return i + 14 if data[i..(i + 13)].uniq.size == 14
   end
 end
 
