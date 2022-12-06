@@ -51,6 +51,6 @@ class Aoc
       `echo #{ans} > #{ans_file}`
     end
 
-    download if part_no == 1 && !File.exist?("#{self.workdir}/part2_answer")
+    true
   end
 end
