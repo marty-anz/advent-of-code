@@ -12,4 +12,9 @@ module S
       e =~ /^\d+$/
     end.map(&:to_i)
   end
+
+  # Take n from i position
+  def self.take(s, i, n)
+    s[i..(i + n - 1)]
+  end
 end

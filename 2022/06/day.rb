@@ -11,7 +11,7 @@ ta = 7
 
 def part1(data)
   data.count.times do |i|
-    return i + 4 if data[i..(i + 3)].uniq.size == 4
+    return i + 4 if S.take(data, i, 4).uniq.size == 4
   end
 end
 
@@ -19,7 +19,7 @@ tb = 19
 
 def part2(data)
   data.count.times do |i|
-    return i + 14 if data[i..(i + 13)].uniq.size == 14
+    return i + 14 if S.take(data, i, 14).uniq.size == 14
   end
 end
 
