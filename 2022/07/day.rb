@@ -11,22 +11,25 @@ end
 
 ta = 95437
 
-def total(dir, dirs)
-  stats = dirs[dir]
+def cal_total(dir, found)
+  dir[:total_size] = dir[:size]
+  if dir[:sub].empty?
+    found << dir[:total_size]
+    return dir[:total_size]
+  end
 
-  return stats[:size] if stats[:sub].empty?
+  dir[:total_size] += dir[:sub].values.sum do |sub|
+    cal_total(sub, found)
+  end
 
-  stats[:sub].sum do |sub|
-    total(sub, dirs)
-  end + stats[:size]
+  found << dir[:total_size]
+  return dir[:total_size]
 end
 
 def part1(data)
-  # 42805968
-  # 29463726
+  root = { sub: {}, size: 0, parent: nil }
 
-  curdir = { path: '/', sub: [], size: 0, parent: nil }
-  dirs = { '/' => curdir }
+  curdir = root
 
   data.shift
 
@@ -37,38 +40,30 @@ def part1(data)
       next if cmd == 'ls'
 
       if dir == '..'
-        curdir = dirs[curdir[:parent]]
-        next
-      end
-
-      path = curdir[:path] + '/' + dir
-      curdir = dirs[path] || { path: path, sub: [], size: 0, parent: curdir[:path] }
-      dirs[path] = curdir
-    else
-      a, b = e.split
-
-      if a == 'dir'
-        curdir[:sub] << (curdir[:path] + '/' + b)
+        curdir = curdir[:parent]
       else
-        curdir[:size] += a.to_i
+        curdir[:sub][dir] ||= { sub: {}, size: 0, parent: curdir }
+
+        curdir = curdir[:sub][dir]
       end
+    else
+      a = e.split.first
+      curdir[:size] += a.to_i if a =~ /^\d/
     end
   end
 
-  dirs.keys.map do |d|
-    t = total(d, dirs)
-    dirs[d][:total_size] = t
-  end.select { |x| x <= 100000 }.sum
+  found = []
+  cal_total(root, found)
+
+  found.select { |x| x <= 100000 }.sum
 end
 
 tb = 24933642
 
 def part2(data)
-  # 42805968
-  # 29463726
+  root = { sub: {}, size: 0, parent: nil }
 
-  curdir = { path: '/', sub: [], size: 0, parent: nil }
-  dirs = { '/' => curdir }
+  curdir = root
 
   data.shift
 
@@ -79,41 +74,25 @@ def part2(data)
       next if cmd == 'ls'
 
       if dir == '..'
-        curdir = dirs[curdir[:parent]]
+        curdir = curdir[:parent]
       else
-        path = curdir[:path] + '/' + dir
-        curdir = dirs[path] || { path: path, sub: [], size: 0, parent: curdir[:path] }
-        dirs[path] = curdir
+        curdir[:sub][dir] ||= { sub: {}, size: 0, parent: curdir }
+
+        curdir = curdir[:sub][dir]
       end
     else
-      a, b = e.split
-
-      if a == 'dir'
-        curdir[:sub] << (curdir[:path] + '/' + b)
-      else
-        curdir[:size] += a.to_i
-      end
+      a = e.split.first
+      curdir[:size] += a.to_i if a =~ /^\d/
     end
   end
 
-  dirs.keys.each do |d|
-    t = total(d, dirs)
-    dirs[d][:total_size] = t
-  end
+  found = []
+  cal_total(root, found)
 
-  # 70000000
-  # 30000000
-  used = dirs['/'][:total_size]
-
-  x = dirs.keys.map do |p|
-    [p, dirs[p][:total_size]]
-  end.select do |_, s|
-    70000000 - used + s >= 30000000
-  end.sort_by do |_, s|
-    s
-  end
-
-  x[0][1]
+  unused = 70000000 - root[:total_size]
+  found.select do |s|
+    unused + s >= 30000000
+  end.sort.first
 end
 
 ans = part1(aoc.test_data)
