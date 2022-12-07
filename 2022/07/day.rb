@@ -14,103 +14,82 @@ ta = 95437
 def total(dir, dirs)
   stats = dirs[dir]
 
-  return stats[:size] if stats[:sub].keys.empty?
+  return stats[:size] if stats[:sub].empty?
 
-  stats[:sub].keys.sum do |sub|
+  stats[:sub].sum do |sub|
     total(sub, dirs)
   end + stats[:size]
 end
 
 def part1(data)
-  total = data.sum do |l|
-    l =~ /^\d+/ ? l.split[0].to_i : 0
-  end
-
   # 42805968
   # 29463726
-  puts total
 
-  parent = nil
-  curdir = { path: '/', sub: {}, files: {}, size: 0, parent: parent }
+  curdir = { path: '/', sub: [], size: 0, parent: nil }
   dirs = { '/' => curdir }
 
   data.shift
 
-  while !data.empty?
-    e = data.shift
-
+  data.each do |e|
     if e[0] == '$'
       cmd, dir = e.split[1..]
 
-      if cmd == 'cd'
-        if dir == '..'
-          curdir = dirs[curdir[:parent]]
-        else
-          path = curdir[:path] + '/' + dir
-          curdir = dirs[path] || { path: path, sub: {}, files: {}, size: 0, parent: curdir[:path] }
-          dirs[path] = curdir
-        end
+      next if cmd == 'ls'
+
+      if dir == '..'
+        curdir = dirs[curdir[:parent]]
+        next
       end
+
+      path = curdir[:path] + '/' + dir
+      curdir = dirs[path] || { path: path, sub: [], size: 0, parent: curdir[:path] }
+      dirs[path] = curdir
     else
       a, b = e.split
 
       if a == 'dir'
-        curdir[:sub][curdir[:path] + '/' + b] = true
+        curdir[:sub] << (curdir[:path] + '/' + b)
       else
         curdir[:size] += a.to_i
       end
     end
   end
 
-  s = dirs.keys.map do |d|
+  dirs.keys.map do |d|
     t = total(d, dirs)
     dirs[d][:total_size] = t
   end.select { |x| x <= 100000 }.sum
-
-  if dirs['/'][:total_size] != total
-    puts "wrong calculation: expected: #{total} actual: #{dirs['/'][:total_size]}"
-  end
-
-  s
 end
 
 tb = 24933642
 
 def part2(data)
-  total = data.sum do |l|
-    l =~ /^\d+/ ? l.split[0].to_i : 0
-  end
-
   # 42805968
   # 29463726
-  puts total
 
-  parent = nil
-  curdir = { path: '/', sub: {}, files: {}, size: 0, parent: parent }
+  curdir = { path: '/', sub: [], size: 0, parent: nil }
   dirs = { '/' => curdir }
 
   data.shift
 
-  while !data.empty?
-    e = data.shift
-
+  data.each do |e|
     if e[0] == '$'
       cmd, dir = e.split[1..]
 
-      if cmd == 'cd'
-        if dir == '..'
-          curdir = dirs[curdir[:parent]]
-        else
-          path = curdir[:path] + '/' + dir
-          curdir = dirs[path] || { path: path, sub: {}, files: {}, size: 0, parent: curdir[:path] }
-          dirs[path] = curdir
-        end
+      next if cmd == 'ls'
+
+      if dir == '..'
+        curdir = dirs[curdir[:parent]]
+      else
+        path = curdir[:path] + '/' + dir
+        curdir = dirs[path] || { path: path, sub: [], size: 0, parent: curdir[:path] }
+        dirs[path] = curdir
       end
     else
       a, b = e.split
 
       if a == 'dir'
-        curdir[:sub][curdir[:path] + '/' + b] = true
+        curdir[:sub] << (curdir[:path] + '/' + b)
       else
         curdir[:size] += a.to_i
       end
@@ -120,7 +99,7 @@ def part2(data)
   dirs.keys.each do |d|
     t = total(d, dirs)
     dirs[d][:total_size] = t
-  end.select { |x| x <= 100000 }.sum
+  end
 
   # 70000000
   # 30000000
