@@ -10,6 +10,15 @@ module H
       ]
     end
 
+    def count_map(s)
+      c = {}
+      s.each do |e|
+        c[e] = c[e].to_i + 1
+      end
+
+      c
+    end
+
     def brackets
       {
         '(' => ')',

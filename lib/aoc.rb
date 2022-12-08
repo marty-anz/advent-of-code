@@ -31,6 +31,8 @@ class Aoc
   end
 
   def run(part_no, expected, actual, &block)
+    ans = block.call(self.data)
+
     if expected.nil?
       puts "part #{part_no} test data is not set"
       return
@@ -40,8 +42,6 @@ class Aoc
       puts "part #{part_no} test answer is not correct expected: #{expected} actual: #{actual}"
       return
     end
-
-    ans = block.call(self.data)
 
     puts ans
 
