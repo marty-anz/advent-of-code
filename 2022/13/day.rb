@@ -10,6 +10,10 @@ require_relative './test_input'
 
 ROW, COL = 0, 1
 
+LT = -1
+EQ = 0
+GT = 1
+
 INF = 999999999
 
 aoc = Aoc.new(__dir__) do |data|
@@ -18,45 +22,41 @@ end
 
 ta = 13
 
-def list?(a)
-  a.kind_of?(Array)
-end
+def compare(l, r)
+  status = EQ
 
-def valid?(l, r)
-  status = 'nil'
-
-  return 'nil' if l == r
+  return EQ if l == r
 
   pos = 0
 
   while true
-    return 'true' if pos == l.size && pos < r.size
-    return 'false' if pos < l.size && pos == r.size
+    return LT if pos == l.size && pos < r.size
+    return GT if pos < l.size && pos == r.size
 
     return status if pos == l.size && pos == r.size
 
     a = l[pos]
     b = r[pos]
 
-    if !list?(a) && !list?(b)
+    if int?(a) && int?(b)
       if a < b
-        return 'true'
+        return LT
       elsif a > b
-        return 'false'
+        return GT
       else
-        status = 'nil'
+        status = EQ
       end
     elsif list?(a) && list?(b)
-      status = valid?(a, b)
+      status = compare(a, b)
     elsif list?(a) && !list?(b)
-      status = valid?(a, [b])
+      status = compare(a, [b])
     elsif !list?(a) && list?(b)
-      status = valid?([a], b)
+      status = compare([a], b)
     end
 
     pos += 1
 
-    return status if status != 'nil'
+    return status if status != EQ
   end
 end
 
@@ -69,7 +69,7 @@ def part1(data)
     a = [a] if !list?(a)
     b = [b] if !list?(b)
 
-    c << (i + 1) if valid?(a, b) == 'true'
+    c << (i + 1) if compare(a, b) == LT
   end
 
   c.sum
@@ -84,14 +84,7 @@ def part2(data)
   packs << [[6]]
 
   packs.sort! do |a, b|
-    status = valid?(a, b)
-    if status == 'true'
-      -1
-    elsif status == 'false'
-      1
-    else
-      0
-    end
+    compare(a, b)
   end
 
   c = []
