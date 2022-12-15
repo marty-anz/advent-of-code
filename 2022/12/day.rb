@@ -6,10 +6,6 @@ require '../../lib/matrix' # M
 require '../../lib/graph' # M
 require '../../lib/sequence' # S
 
-ROW, COL = 0, 1
-
-INF = 999999999
-
 aoc = Aoc.new(__dir__) do |data|
   data.map(&:strip)
 end
@@ -71,7 +67,7 @@ def part2(data)
 
   g = build_graph(m)
 
-  start.map do |s|
+  start.filter_map do |s|
     Graph.shortest(g, s, target).first[target]
   end.min
 end

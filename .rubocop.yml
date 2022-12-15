@@ -13,10 +13,7 @@ Metrics:
 Layout/IndentationWidth:
   Enabled: false
 
-Layout/ElseAlignment:
-  Enabled: false
-
-Layout/ElseAl:
+Layout:
   Enabled: false
 
 Naming:

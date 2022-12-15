@@ -1,4 +1,8 @@
-# lib/line.rb
+# lib/sequence.rb
+
+ROW, COL = 0, 1
+
+INF = 999999999
 
 def list?(a)
   a.kind_of? Array

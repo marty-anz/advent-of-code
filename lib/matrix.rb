@@ -2,8 +2,18 @@
 
 # 2d array Matrix functions
 module M
+  def self.size(data)
+    [data.count, data.first.count]
+  end
+
   def self.make(x, y, n)
     x.times.map { [n] * y }
+  end
+
+  def self.clone(data)
+    data.map do |row|
+      row.clone
+    end
   end
 
   def self.up(_, r, c)
@@ -48,6 +58,14 @@ module M
     end
   end
 
+  def self.each!(data, &block)
+    data.each_with_index do |row, x|
+      row.each_with_index do |e, y|
+        data[x][y] = block.call(e, x, y)
+      end
+    end
+  end
+
   def self.map(data, &block)
     data.each_with_index.flat_map do |row, x|
       row.each_with_index.flat_map do |e, y|
@@ -64,7 +82,30 @@ module M
     end
   end
 
-  def self.surrounding(data, r, c)
+  def self.surrounding(r, c)
+    pos = []
+
+    up = r - 1
+    down = r + 1
+    right = c + 1
+    left = c - 1
+
+    pos << [down, c]
+    pos << [up, c]
+
+    pos << [r, right]
+    pos << [r, left]
+
+    pos << [down, right]
+    pos << [up, left]
+
+    pos << [down, left]
+    pos << [up, right]
+
+    pos
+  end
+
+  def self.bounded_surrounding(data, r, c)
     pos = []
 
     up = r - 1
@@ -87,7 +128,20 @@ module M
     pos
   end
 
-  def self.cross(data, r, c)
+  def self.cross(r, c)
+    up = r - 1
+    down = r + 1
+    right = c + 1
+    left = c - 1
+
+    [[down, c],
+     [up, c],
+
+     [r, right],
+     [r, left]]
+  end
+
+  def self.bounded_cross(data, r, c)
     pos = []
 
     up = r - 1
@@ -102,5 +156,9 @@ module M
     pos << [r, left] if element?(data, r, left)
 
     pos
+  end
+
+  def self.graph_from_matrix(matrix)
+    g = {}
   end
 end
