@@ -47,8 +47,11 @@ class Aoc
 
     ans_file = "#{self.workdir}/part#{part_no}_answer"
     unless File.exist?(ans_file)
-      puts `aoc submit --year #{year} --day #{day} #{part_no} #{ans}`
-      `echo #{ans} > #{ans_file}`
+      resp = `aoc submit --year #{year} --day #{day} #{part_no} #{ans}`
+
+      puts resp
+
+      `echo #{ans} > #{ans_file}` unless resp.=~ /not the right answer/
     end
 
     true
