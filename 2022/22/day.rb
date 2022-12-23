@@ -7,46 +7,15 @@ require '../../lib/graph' # M
 require '../../lib/sequence'
 require '../../lib/deq'
 
-aoc = Aoc.new(__dir__) do |data|
-  data
-end
-
-Right = 0
-Down = 1
-Left = 2
-Up = 3
+aoc = Aoc.new(__dir__) { |data| data }
 
 def password(row, column, facing)
   row * 1000 + column * 4 + facing
 end
 
 def turn_facing(facing, direct)
-  if direct == 'R'
-    case facing
-    when Right
-      Down
-    when Down
-      Left
-    when Left
-      Up
-    when Up
-      Right
-    end
-  else
-    case facing
-    when Right
-      Up
-    when Up
-      Left
-    when Left
-      Down
-    when Down
-      Right
-    end
-  end
+  M.turn_facing(facing, direct) # L or R
 end
-
-# puts turn_facing(Right, 'L') == Up
 
 def move(row, col, facing, steps, row_ranges, col_ranges, map)
   case facing

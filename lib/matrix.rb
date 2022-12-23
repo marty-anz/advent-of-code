@@ -1,7 +1,39 @@
 # lib/matrix.rb
 
 # 2d array Matrix functions
+
+Right = 0
+Down = 1
+Left = 2
+Up = 3
+
 module M
+  def turn_facing(facing, direct)
+    if direct == 'R'
+      case facing
+      when Right
+        Down
+      when Down
+        Left
+      when Left
+        Up
+      when Up
+        Right
+      end
+    else
+      case facing
+      when Right
+        Up
+      when Up
+        Left
+      when Left
+        Down
+      when Down
+        Right
+      end
+    end
+  end
+
   def self.size(data)
     [data.count, data.first.count]
   end
