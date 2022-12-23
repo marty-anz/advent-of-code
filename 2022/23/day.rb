@@ -16,25 +16,12 @@ South = 'S'
 West = 'W'
 East = 'E'
 
-def mins(map)
-  min_x, max_x = INF, -INF
-  min_y, max_y = INF, -INF
-
-  map.select { |_, v| v == '#' }.keys.each do |x, y|
-    min_x = x if x < min_x
-
-    min_y = y if y < min_y
-
-    max_x = x if x > max_x
-
-    max_y = y if y > max_y
-  end
-
-  return min_x..max_x, min_y..max_y
+def ranges(map)
+  list_ranges(map.select { |_, v| v == '#' }.keys)
 end
 
 def display(map)
-  xr, yr = mins(map)
+  xr, yr = ranges(map)
 
   xr.each do |x|
     line = yr.map do |y|
@@ -48,7 +35,7 @@ def display(map)
 end
 
 def count_empty_tiles(map)
-  x_r, y_r = mins(map)
+  x_r, y_r = ranges(map)
 
   count = 0
 
@@ -91,6 +78,7 @@ def sim(map, choice, direction)
 
     map[elf[0]] = nil
     map[dest] = '#'
+
     count += 1
   end
 
@@ -157,19 +145,15 @@ def part2(data)
 
   direction = ['N', 'S', 'W', 'E']
 
-  round = 0
-  while true
+  round = 1
+  while sim(map, choice, direction) > 0
     round += 1
-    count = sim(map, choice, direction)
-
-    break if count == 0
     # display(map)
     choice = choice[1..] + [choice[0]]
     direction = direction[1..] + [direction[0]]
   end
 
   # display(map)
-
   round
 end
 
