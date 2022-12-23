@@ -32,12 +32,45 @@ def parse_input(data)
   vals
 end
 
-def release(cur, vals, min, expected, opened, rate, prev, cached)
+def release(cur, vals, min, expected, opened, max_rate, released, rate, prev, cached, prune)
   key = [cur[:v], opened, min]
 
-  # puts key
+  # assume none of the closed valves will be opened, this gives us the
+  # underestimated minimum released amount from this minute.
+  lowerbound = released + rate * min
 
+  # With pruning it cut down the unique search space, by almost 80%!
+  # part 1
+  # cached size: 1235
+  # 1651
+  # cached size: 126300
+  # 2080
+  #
+  # ruby day.rb  0.19s user 0.03s system 57% cpu 0.376 total
+
+  # Without pruning,
+  # part 1
+  # cached size: 4496
+  # 1651
+  # cached size: 1063898
+  # 2080
+  # ruby day.rb  1.40s user 0.07s system 93% cpu 1.583 total
+
+  if prune[min] < lowerbound
+    prune[min] = lowerbound # keep the highest lowerbound
+  else
+    #
+    # X minutes left, magically open all the valves in one minute, that gives
+    # an overesimated upperbound of release from the rest of X minutes.
+    #
+    # 4 is an experimental value for my data input that reduces runtime from 50s
+    # to 20s. The number should really be 1.
+    return cached[key] = 0 if prune[min] > lowerbound + max_rate * (min - 4)
+  end
+
+  # puts key
   return cached[key] if cached[key]
+
   if opened == expected
     # paths << "#{cur[:v]} #{opened.keys.join} #{rate} #{min}"
     return cached[key] = rate * min
@@ -62,9 +95,12 @@ def release(cur, vals, min, expected, opened, rate, prev, cached)
                   next_min,
                   expected,
                   opened | cur[:bitmask],
+                  max_rate - cur[:rate],
+                  released + rate,
                   rate + cur[:rate],
                   nil,
-                  cached)
+                  cached,
+                  prune)
 
     if rel > max
       max = rel
@@ -80,9 +116,14 @@ def release(cur, vals, min, expected, opened, rate, prev, cached)
       next
     end
 
-    rel = release(vals[nv], vals, next_min, expected, opened, rate,
+    rel = release(vals[nv], vals, next_min,
+                  expected, opened,
+                  max_rate,
+                  released + rate,
+                  rate,
                   cur[:v],
-                  cached)
+                  cached,
+                  prune)
     if rel > max
       max = rel
       # path = "#{cur[:v]}-#{min}-move to #{vals[nv]}"
@@ -105,19 +146,38 @@ def part1(data)
   vals.each { |_, c| mask[c[:index]] = '1' if c[:rate] > 0 }
   expected = mask.join.to_i(2)
 
+  max_rate = vals.map { |_, v| v[:rate] }.sum
   opened = 0
 
+  prune = [-INF] * 31
   ans = release(vals['AA'],
-                vals, 30, expected, opened, 0, nil, cached)
+                vals, 30, expected, opened,
+                max_rate,
+                0,
+                0,
+                nil,
+                cached,
+                prune)
 
   puts "cached size: #{cached.size}"
 
   ans
 end
 
-def release2(cur, cur1, vals, min, expected, opened, released, rate, cached, prev, prev1)
-  puts [cur[:v], cur1[:v], min, sprintf("%0#{vals.size}b", opened), released, rate, prev, prev1].to_s
+def release2(cur, cur1, vals, min, expected, opened, max_rate, released, rate, cached, prev, prev1, prune)
   key = [[cur[:v], cur1[:v]].sort, opened, min]
+
+  lowerbound = released + rate * min
+
+  if prune[min] < lowerbound
+    prune[min] = lowerbound
+  else
+    #
+    # X minutes left, magically open all the valves in one minute, that gives
+    # an overesimated upperbound of release from the rest of X minutes.
+    #
+    return cached[key] = 0 if prune[min] > lowerbound + max_rate * (min - 1)
+  end
 
   return cached[key] if cached[key]
 
@@ -141,10 +201,12 @@ def release2(cur, cur1, vals, min, expected, opened, released, rate, cached, pre
   if human_open && ele_open
     rel = release2(cur, cur1, vals, next_min, expected,
                    opened | cur[:bitmask] | cur1[:bitmask],
-                   released,
+                   max_rate - (cur[:rate] + cur1[:rate]),
+                   released + rate,
                    rate + cur[:rate] + cur1[:rate],
                    cached,
-                   nil, nil)
+                   nil, nil,
+                   prune)
 
     max = rel if rel > max
   end
@@ -155,10 +217,12 @@ def release2(cur, cur1, vals, min, expected, opened, released, rate, cached, pre
 
       rel = release2(cur, vals[nv], vals, next_min,
                      expected, opened | cur[:bitmask],
-                     released,
+                     max_rate - cur[:rate],
+                     released + rate,
                      rate + cur[:rate],
                      cached,
-                     nil, cur1[:v])
+                     nil, cur1[:v],
+                     prune)
       max = rel if rel > max
     end
   end
@@ -169,10 +233,12 @@ def release2(cur, cur1, vals, min, expected, opened, released, rate, cached, pre
 
       rel = release2(vals[nv], cur1,
                      vals, next_min, expected, opened | cur1[:bitmask],
-                     released,
+                     max_rate - cur1[:rate],
+                     released + rate,
                      rate + cur1[:rate],
                      cached,
-                     cur[:v], nil)
+                     cur[:v], nil,
+                     prune)
 
       max = rel if rel > max
     end
@@ -186,10 +252,12 @@ def release2(cur, cur1, vals, min, expected, opened, released, rate, cached, pre
 
       rel = release2(vals[hv], vals[ev],
                      vals, next_min, expected, opened,
-                     released,
+                     max_rate,
+                     released + rate,
                      rate,
                      cached,
-                     cur[:v], cur1[:v])
+                     cur[:v], cur1[:v],
+                     prune)
 
       max = rel if rel > max
     end
@@ -206,13 +274,17 @@ def part2(data)
   mask = ['0'] * vals.size
   vals.each { |_, c| mask[c[:index]] = '1' if c[:rate] > 0 }
   expected = mask.join.to_i(2)
-
+  max_rate = vals.map { |_, v| v[:rate] }.sum
   opened = 0
+
+  prune = [-INF] * 27
 
   ans = release2(vals['AA'], vals['AA'], vals,
                  26, expected, opened,
+                 max_rate,
                  0, 0,
-                 cached, nil, nil)
+                 cached, nil, nil,
+                 prune)
 
   puts "cached size: #{cached.size}"
 
@@ -223,15 +295,13 @@ puts 'part 1'
 
 ta = 1651
 
-# ans = part1(aoc.test_data)
+ans = part1(aoc.test_data)
 
-# puts ans
+puts ans
 
-# aoc.run(1, ta, ans) do |data|
-#   part1(aoc.data)
-# end
-
-# exit
+aoc.run(1, ta, ans) do |data|
+  part1(aoc.data)
+end
 
 tb = 1707
 
@@ -240,11 +310,14 @@ tb = 1707
 puts 'part 2'
 
 ans = part2(aoc.test_data)
+
 puts ans
-exit
+# exit
 
 aoc.run(2, tb, ans) do |data|
   part2(data)
 end
 
 puts 'done'
+
+__END__
