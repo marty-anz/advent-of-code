@@ -114,6 +114,17 @@ module M
     end
   end
 
+  SurroundingDirection = {
+    'N' => 0,
+    'NE' => 1,
+    'E' => 2,
+    'SE' => 3,
+    'S' => 4,
+    'SW' => 5,
+    'W' => 6,
+    'NW' => 7
+  }
+
   def self.surrounding(r, c)
     pos = []
 
@@ -122,17 +133,20 @@ module M
     right = c + 1
     left = c - 1
 
-    pos << [down, c]
-    pos << [up, c]
+    pos << [up, c] # north
+    pos << [up, right] # north east
 
-    pos << [r, right]
-    pos << [r, left]
+    pos << [r, right] # east
 
-    pos << [down, right]
-    pos << [up, left]
+    pos << [down, right] # south east
 
-    pos << [down, left]
-    pos << [up, right]
+    pos << [down, c] # south
+
+    pos << [down, left] # south west
+    #
+    pos << [r, left] # west
+
+    pos << [up, left] # north west
 
     pos
   end
