@@ -21,12 +21,12 @@ class Aoc
   end
 
   def test_data
-    x = File.read("#{self.workdir}/test_input.txt").lines.map(&:strip)
+    x = File.read("#{self.workdir}/test_input.txt").lines
     self.postload.call(x)
   end
 
   def data
-    x = File.read(input_file).lines.map(&:strip)
+    x = File.read(input_file).lines
     self.postload.call(x)
   end
 
