@@ -2,10 +2,10 @@
 
 # 2d array Matrix functions
 
-Right = 0
-Down = 1
-Left = 2
-Up = 3
+# Right = 0
+# Down = 1
+# Left = 2
+# Up = 3
 
 module M
   def turn_facing(facing, direct)

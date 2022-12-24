@@ -13,7 +13,10 @@ def int?(a)
 end
 
 def list_ranges(lst)
-  sz = lst.first.size
+  return if lst.nil? || lst.empty?
+
+  sz = lst.first.count
+
   ranges = sz.times.map { [INF, -INF] }
 
   lst.each do |l|
