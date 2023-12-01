@@ -25,6 +25,11 @@ class Aoc
     self.postload.call(x)
   end
 
+  def test_data2
+    x = File.read("#{self.workdir}/test_input2.txt").lines
+    self.postload.call(x)
+  end
+
   def data
     x = File.read(input_file).lines
     self.postload.call(x)

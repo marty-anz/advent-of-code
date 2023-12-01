@@ -12,7 +12,8 @@ end
 
 def part1(input)
   input.map do |x|
-    s = x.gsub(/[^\d]/, "")
+    s = x.gsub(/[a-z]/, "")
+
     "#{s[0]}#{s[-1]}".to_i
   end.sum
 end
@@ -24,42 +25,28 @@ aoc.run(1, 142, ans) do |data|
 end
 
 def part2(input)
+  numbers = {
+    'one' => 1, 'two' => 2, 'three' => 3, 'four' => 4, 'five' => 5, 'six' => 6, 'seven' => 7, 'eight' => 8, 'nine' => 9,
+    '1' => 1, '2' => 2, '3' => 3, '4' => 4, '5' => 5, '6' => 6, '7' => 7, '8' => 8, '9' => 9,
+  }
+
   input.map do |x|
-    while true
-      m = /(one|two|three|four|five|six|seven|eight|nine)/.match(x)
+    first, last = nil, nil
+    fn, ln = nil, nil
 
-      break if m.nil?
+    numbers.each do |word, n|
+      f, l = x.index(word), x.rindex(word)
 
-      if m[0] == 'one'
-        n = "1e"
-      elsif m[0] == 'two'
-        n = "2o"
-      elsif m[0] == 'three'
-        n = "3e"
-      elsif m[0] == 'four'
-        n = "4r"
-      elsif m[0] == 'five'
-        n = "5e"
-      elsif m[0] == 'six'
-        n = "6x"
-      elsif m[0] == 'seven'
-        n = "7n"
-      elsif m[0] == 'eight'
-        n = "8t"
-      elsif m[0] == 'nine'
-        n = "9e"
-      end
+      first, fn = f, n if !f.nil? && (first.nil? || f < first)
 
-      x = x.sub(m[0], n)
+      last, ln = l, n if !l.nil? && (last.nil? || l > last)
     end
 
-    s = x.gsub(/[^\d]/, "")
-
-    "#{s[0]}#{s[-1]}".to_i
+    "#{fn}#{ln}".to_i
   end.sum
 end
 
-ans = part2(aoc.test_data)
+ans = part2(aoc.test_data2)
 
 aoc.run(2, 281, ans) do |data|
   part2(data)
