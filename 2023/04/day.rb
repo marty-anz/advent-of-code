@@ -19,18 +19,9 @@ def part1(input)
 
     win_map = Hash[wins.map { |d| [d, true] }]
 
-    p = 0
-    ns.each do |n|
-      if win_map[n]
-        if p == 0
-          p = 1
-        else
-          p *= 2
-        end
-      end
-    end
+    p = ns.filter { |n| win_map[n] }.count
 
-    p
+    (2 ** (p - 1)).to_i
   end.sum
 end
 
@@ -53,7 +44,7 @@ def part2(input)
 
     win_map = Hash[wins.map { |d| [d, true] }]
 
-    count = ns.map { |n| win_map[n] ? 1 : 0 }.sum
+    count = ns.filter { |n| win_map[n] }.count
 
     win_cards[card_no] = []
 
@@ -73,8 +64,7 @@ def part2(input)
 
     cards.each do |card, count|
       win_cards[card].each do |no|
-        new_cards[no] = 0 if new_cards[no].nil?
-        new_cards[no] += count
+        new_cards[no] = (new_cards[no] || 0) + count
       end
     end
 
