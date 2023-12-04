@@ -13,9 +13,7 @@ end
 def part1(input)
   input.map do |line|
     parts = line.split(": ")
-    numbers = parts[1].split(" | ")
-    wins = numbers[0].split(" ")
-    ns = numbers[1].split(" ")
+    wins, ns = parts[1].split(" | ").map { |p| p.split(" ") }
 
     win_map = Hash[wins.map { |d| [d, true] }]
 
@@ -37,10 +35,7 @@ def part2(input)
   input.map do |line|
     parts = line.split(": ")
     card_no = parts[0].split(" ").last.to_i
-
-    numbers = parts[1].split(" | ")
-    wins = numbers[0].split(" ")
-    ns = numbers[1].split(" ")
+    wins, ns = parts[1].split(" | ").map { |p| p.split(" ") }
 
     win_map = Hash[wins.map { |d| [d, true] }]
 
