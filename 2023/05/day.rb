@@ -14,9 +14,8 @@ end
 def part1(input)
   seeds = input.shift.split("seeds: ")[1].split(" ").map(&:to_i)
 
-  k = ""
-
   maps = {}
+  k = ""
 
   input.each do |x|
     x = x.strip
@@ -28,19 +27,13 @@ def part1(input)
       next
     end
 
-    r = x.split(" ").map(&:to_i)
-
-    maps[k] << [r[0], r[1], r[2]]
-
-    # r[2].times do |i|
-    #   maps[k][r[1]+i] = r[0] + i
-    # end
+    # target, source, range
+    maps[k] << x.split(" ").map(&:to_i)
   end
 
   loc = seeds.map do |val|
-    ['seed-to-soil', 'soil-to-fertilizer','fertilizer-to-water','water-to-light',
-     'light-to-temperature','temperature-to-humidity','humidity-to-location'].each do |k|
-      maps[k].each do |target, source, range|
+    maps.each do |_, ranges|
+      ranges.each do |target, source, range|
         if val >= source && val <= source + range
           val = target + val - source
           break
@@ -73,60 +66,73 @@ def part2(input)
       next
     end
 
-    r = x.split(" ").map(&:to_i)
+    t, s, r = x.split(" ").map(&:to_i)
 
-    maps[k] << [[r[0], r[0] + r[2] -1], [r[1], r[1] + r[2] - 1]]
+    maps[k] << [[t, t+r-1], [s, s+r-1]]
   end
 
 
-  ranges = seeds.each_slice(2).map do |s, t|
-    [s, s + t - 1]
-  end
+  unmatched = seeds.each_slice(2).map { |s, t| [s, s + t - 1] }
 
-  unmatched = ranges
-  matched = []
+  # ruby's map preverse the insert order
+  maps.keys.each do |step|
+    matched_targets, still_unmatched = [], []
 
-  ['seed-to-soil', 'soil-to-fertilizer','fertilizer-to-water','water-to-light',
-   'light-to-temperature','temperature-to-humidity','humidity-to-location'].each do |step|
-    matched = []
-    still_unmatched = []
-
+    # go through each mapping
     maps[step].each do |target, source|
       still_unmatched = []
 
+      # for each unmatched, match against the source range for the next step
       unmatched.each do |val_start, val_end|
         source_start, source_end = source
 
+        # no overlapping, still unmatched
+        #                [...source range...]
+        # [...val_end]                        p [val_start...]
         if val_start > source_end || val_end < source_start
           still_unmatched << [val_start, val_end]
           next
         end
 
         if val_start < source_start
+          #                [...source range...]
+          # [val_start....][......val_end]
+          # [val_start....][..................]..val_end]
+
           still_unmatched << [val_start, source_start - 1]
+
           match = [source_start, [source_end, val_end].min]
 
-          matched << [target[0], target[0] + match[1] - match[0]]
+          mapped_start = target[0]
+
+          matched_targets << [mapped, mapped_start + match[1] - match[0]]
         else
+          #                [.....source range......]
+          #                [val_start...val_end]
+          #                [val_start.............val_end]
           match = [[val_start, source_start].max, [source_end, val_end].min]
 
-          x =[target[0] + match[0] - source_start, target[0] + match[0] - source_start + match[1] - match[0]]
+          mapped_start = target[0] + match[0] - source_start
 
-          matched << x 
+          matched_targets << [mapped, mapped_start + match[1] - match[0]]
         end
 
         if val_end > source_end
+          #                [.....source range......]
+          #                [val_start..................val_end]
           still_unmatched << [source_end + 1, val_end]
         end
       end
 
-      unmatched = still_unmatched + []
+      # try unmatched for the next mapping
+      unmatched = still_unmatched
     end
 
 
+    # still_unmatched are 1-1 matched to target, together matched becomes
+    # unmatched for the next step
     unmatched = still_unmatched + matched
   end
-
 
   unmatched.map { |s, _| s}.min
 end
